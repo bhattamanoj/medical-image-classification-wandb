@@ -1,6 +1,3 @@
-import warnings
-warnings.filterwarnings("ignore")
-
 import wandb
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,8 +16,11 @@ from sklearn.metrics import (
 )
 from sklearn.linear_model import LogisticRegression
 
+import os
+wandb.login(key=os.getenv("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"))
 
-wandb.init(
+run = wandb.init(
+    entity="bhattamanoj905",
     project="breast-cancer-classifier",
     config={
         "test_size": 0.2,
@@ -33,12 +33,10 @@ wandb.init(
 
 config = wandb.config
 
-# Load dataset
-bc = load_breast_cancer()
-X = pd.DataFrame(bc.data, columns=bc.feature_names)
-y = pd.Series(bc.target, name="target")
+data = load_breast_cancer()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = pd.Series(data.target, name="target")
 
-# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -47,55 +45,49 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y,
 )
 
-# Build pipeline
 model = Pipeline([
     ("scaler", StandardScaler()),
-    (
-        "classifier",
-        LogisticRegression(max_iter=config.max_iter, random_state=config.random_state),
-    ),
+    ("classifier", LogisticRegression(max_iter=config.max_iter, random_state=config.random_state)),
 ])
 
-# Train
 model.fit(X_train, y_train)
-
-# Predict
 y_pred = model.predict(X_test)
 
-# Metrics
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred)
 
-wandb.log(
-    {
-        "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1,
-    }
-)
+wandb.log({
+    "accuracy": accuracy,
+    "precision": precision,
+    "recall": recall,
+    "f1_score": f1,
+})
 
-# Confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 fig, ax = plt.subplots(figsize=(5, 4))
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=bc.target_names)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=data.target_names)
 disp.plot(ax=ax, colorbar=False)
 plt.title("Breast Cancer Confusion Matrix")
 plt.tight_layout()
+
 cm_path = "confusion_matrix.png"
-plt.savefig(cm_path, dpi=150)
+plt.savefig(cm_path, dpi=150, bbox_inches="tight")
+plt.close(fig)
+
 wandb.log({"confusion_matrix": wandb.Image(cm_path)})
 
-# Prediction sample table
-results_df = pd.DataFrame({"actual": y_test.values[:20], "predicted": y_pred[:20]})
+results_df = pd.DataFrame({
+    "actual": y_test.values[:20],
+    "predicted": y_pred[:20],
+})
 wandb.log({"prediction_sample": wandb.Table(dataframe=results_df)})
 
 print("Model training complete.")
-print(f"Accuracy : {accuracy:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"Recall   : {recall:.4f}")
-print(f"F1 Score : {f1:.4f}")
+print(f"Accuracy   : {accuracy:.4f}")
+print(f"Precision  : {precision:.4f}")
+print(f"Recall     : {recall:.4f}")
+print(f"F1 Score   : {f1:.4f}")
 
-wandb.finish()
+run.finish()

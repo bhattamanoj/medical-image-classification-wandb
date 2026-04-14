@@ -16,8 +16,7 @@ from sklearn.metrics import (
 )
 from sklearn.linear_model import LogisticRegression
 
-import os
-wandb.login(key=os.getenv("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"))
+wandb.login(relogin=True)
 
 run = wandb.init(
     entity="bhattamanoj905",

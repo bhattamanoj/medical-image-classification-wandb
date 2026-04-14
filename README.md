@@ -48,7 +48,7 @@ The model was trained and evaluated successfully.
 
 ## Visualization
 
-![Confusion Matrix](assets/confusion_matrix.png)
+![Confusion Matrix](confusion_matrix.png)
 
 ## What We Learned
 We learned how to connect a machine learning script to Weights & Biases, log useful metrics, and make experiment results easier to understand and present.

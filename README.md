@@ -37,6 +37,19 @@ We trained a binary classifier and logged the main evaluation results to Weights
 ## Key Results
 This project gives us a clean example of experiment tracking in a real workflow. It helps show how monitoring tools can support reproducibility, comparison, and better reporting.
 
+## Results
+
+The model was trained and evaluated successfully.
+
+- Accuracy: 0.9825  
+- Precision: 0.9861  
+- Recall: 0.9861  
+- F1 Score: 0.9861  
+
+## Visualization
+
+![Confusion Matrix](assets/confusion_matrix.png)
+
 ## What We Learned
 We learned how to connect a machine learning script to Weights & Biases, log useful metrics, and make experiment results easier to understand and present.
 
